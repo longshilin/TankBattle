@@ -1,0 +1,5 @@
+#	武器表								
+#	Id		AttackInterval	BulletId	BulletChargingSoundId	BulletFiringSoundId	MinLaunchForce	MaxLaunchForce	MaxChargeTime
+#	int		float	int	int	int	float	float	float
+#	武器编号	策划备注	攻击间隔	子弹编号	蓄力声音编号	炮弹开火声音编号	最小蓄力	最大蓄力	蓄力的最长时间
+	30000	坦克武器	0.2	50000	30000	30001	15	30	0.7

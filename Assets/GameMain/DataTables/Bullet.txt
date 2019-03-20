@@ -1,0 +1,5 @@
+#	炮弹属性表							
+#	Id		Attack	ExplosionForce	MaxLifeTime	ExplosionRadius	ExplosionEffectId	ExplosionSoundId
+#	int		int	float	float	float	int	int
+#	属性编号	策划备注	炮弹伤害	爆炸的力量	炮弹的伤害有效时间	炮弹伤害范围圈半径	爆炸特效编号	爆炸声音编号
+	50000	一号炮弹	100	800	2	5	70001	20001

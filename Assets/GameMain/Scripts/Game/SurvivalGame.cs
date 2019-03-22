@@ -10,8 +10,8 @@ using GameFramework.DataTable;
 using UnityEngine;
 
 namespace TankBattle {
+
     public class SurvivalGame : GameBase {
-        private float m_ElapseSeconds = 0f;
 
         public override GameMode GameMode {
             get {

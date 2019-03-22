@@ -1,4 +1,5 @@
 using GameFramework;
+using GameFramework.Fsm;
 using UnityEngine;
 using UnityGameFramework.Runtime;
 
@@ -13,10 +14,12 @@ namespace TankBattle {
         public AudioClip m_EngineIdling;            // Audio to play when the tank isn't moving.
         public AudioClip m_EngineDriving;           // Audio to play when the tank is moving.
 
+        public bool m_ThrusterEnable = true;        // 表示Thruster是否可用，用于在状态机中判断是够对操纵杆进行取值；
+
         [SerializeField]
         private ThrusterData m_TrusterData = null;
 
-        private const string AttachPoint = "Thruster Point";
+        private const string AttachPoint = "Thruster Point";    // Thruster实体的挂载点
 
         private string m_MovementAxisName;          // The name of the input axis for moving forward and back.
         private string m_TurnAxisName;              // The name of the input axis for turning.
@@ -25,23 +28,34 @@ namespace TankBattle {
         private float m_TurnInputValue;             // The current value of the turn input.
         private float m_OriginalPitch;              // The pitch of the audio source at the start of the scene.
 
+        private GameFramework.Fsm.IFsm<Thruster> m_TankFsm;
+        private FsmComponent Fsm = null;
+
         /// 第一部分被调用，Initialization模块
         private void Awake() {
             // 加载音频
             m_EngineIdling = Resources.Load<AudioClip>("Sounds/engine_idle");
             m_EngineDriving = Resources.Load<AudioClip>("Sounds/engine_driving");
             m_MovementAudio = GetComponent<AudioSource>();
-
-            Debug.Log("m_MovementAudio - " + m_MovementAudio);
         }
 
-        /// 将引擎实体附加到坦克父实体上
-        protected override void OnAttachTo(EntityLogic parentEntity, Transform parentTransform, object userData) {
-            base.OnAttachTo(parentEntity, parentTransform, userData);
+        // 在tank移动上加入状态机
+        protected override void OnInit(object userData) {
+            base.OnInit(userData);
 
-            Name = Utility.Text.Format("Thruster of {0}", parentEntity.Name);
-            CachedTransform.localPosition = Vector3.zero;
-            //Debug.LogFormat(Constant.Logger.loggerFormat4, GetType(), System.Reflection.MethodBase.GetCurrentMethod().Name, Name, "Attach a Thruster instance to " + parentEntity.name);
+            Fsm = UnityGameFramework.Runtime.GameEntry.GetComponent<FsmComponent>();
+
+            /* Tank的所有状态 */
+            FsmState<Thruster>[] tankStates = new FsmState<Thruster>[] {
+                new TankIdleState(),
+                new TankMoveState(),
+            };
+
+            // 创建状态机
+            m_TankFsm = Fsm.CreateFsm<Thruster>(this, tankStates);
+
+            // 启动tank静止状态
+            m_TankFsm.Start<TankIdleState>();
         }
 
         // 生成实体
@@ -57,6 +71,15 @@ namespace TankBattle {
             // Attach Thruster System to Tank Render
             GameEntry.Entity.AttachEntity(Entity, m_TrusterData.OwnerId, AttachPoint);
             //Debug.LogFormat(Constant.Logger.loggerFormat4, GetType(), System.Reflection.MethodBase.GetCurrentMethod().Name, Name, "Instantiation a Thruster prefab and ThrusterData ");
+        }
+
+        /// 将引擎实体附加到坦克父实体上
+        protected override void OnAttachTo(EntityLogic parentEntity, Transform parentTransform, object userData) {
+            base.OnAttachTo(parentEntity, parentTransform, userData);
+
+            Name = Utility.Text.Format("Thruster of {0}", parentEntity.Name);
+            CachedTransform.localPosition = Vector3.zero;
+            //Debug.LogFormat(Constant.Logger.loggerFormat4, GetType(), System.Reflection.MethodBase.GetCurrentMethod().Name, Name, "Attach a Thruster instance to " + parentEntity.name);
         }
 
         /// 第三步被调用，Initialization模块
@@ -82,6 +105,7 @@ namespace TankBattle {
                 m_MovementInputValue = 0f;
                 m_TurnInputValue = 0f;
 
+                m_ThrusterEnable = true;
                 //Debug.LogFormat(Constant.Logger.loggerFormat3, GetType(), System.Reflection.MethodBase.GetCurrentMethod().Name, Name);
             }
         }
@@ -89,7 +113,7 @@ namespace TankBattle {
         /// 第四步被调用，Physics模块
         private void FixedUpdate() {
             // Adjust the rigidbodies position and orientation in FixedUpdate.
-            Move();
+            // Move();
             Turn();
         }
 
@@ -131,6 +155,7 @@ namespace TankBattle {
             // When the tank is turned off, set it to kinematic so it stops moving.
             m_Rigidbody.isKinematic = true;
 
+            m_ThrusterEnable = false;
             //Debug.LogFormat(Constant.Logger.loggerFormat3, GetType(), System.Reflection.MethodBase.GetCurrentMethod().Name, Name);
         }
 
@@ -145,9 +170,10 @@ namespace TankBattle {
             m_Rigidbody.MoveRotation(m_Rigidbody.rotation * turnRotation);
         }
 
-        private void Move() {
+        // 前后移动
+        public void Move(float movementInputValue) {
             // Create a vector in the direction the tank is facing with a magnitude based on the input, speed and the time between frames.
-            Vector3 movement = -transform.forward * m_MovementInputValue * m_TrusterData.Speed * Time.deltaTime;
+            Vector3 movement = -transform.forward * movementInputValue * m_TrusterData.Speed * Time.deltaTime;
 
             // Apply this movement to the rigidbody's position.
             m_Rigidbody.MovePosition(m_Rigidbody.position + movement);

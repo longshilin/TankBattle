@@ -29,7 +29,7 @@ namespace TankBattle {
             set;
         }
 
-        public static SearchRes PlayerB {
+        public static MatchRes PlayerB {
             get;
             set;
         }

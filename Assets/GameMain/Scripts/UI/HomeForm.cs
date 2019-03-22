@@ -33,7 +33,7 @@ namespace TankBattle {
             m_procedureHome = (ProcedureHome)userData;
             if (GameEntry.User != null) {
                 loginRes = GameEntry.User;
-                UserName.text = loginRes.Account;
+                UserName.text = loginRes.UserName;
                 GoldNum.text = loginRes.Gold.ToString();
                 CupNum.text = loginRes.Cup.ToString();
             }
@@ -56,7 +56,7 @@ namespace TankBattle {
             base.OnUpdate(elapseSeconds, realElapseSeconds);
             //检测匹配是否成功
             if (GameEntry.PlayerB != null) {
-                if (GameEntry.PlayerB.UserId == 0) {
+                if (GameEntry.PlayerB.UserId.Equals("0")) {
                     GameEntry.PlayerB = null;
                     SearchCav.SetActive(false);
                     //匹配失败

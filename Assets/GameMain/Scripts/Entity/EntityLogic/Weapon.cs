@@ -22,7 +22,6 @@ namespace TankBattle {
         [SerializeField]
         private WeaponData m_WeaponData = null;
 
-        private float m_NextAttackTime = 0f;
         private string m_FireButton;                // The input axis that is used for launching shells.
         private float m_CurrentLaunchForce;         // The force that will be given to the shell when the fire button is released.
         private float m_ChargeSpeed;                // How fast the launch force increases, based on the max charge time.

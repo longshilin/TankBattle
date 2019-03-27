@@ -180,7 +180,7 @@ namespace TankBattle {
         /// 第四步被调用，Physics模块
         private void FixedUpdate() {
             // Adjust the rigidbodies position and orientation in FixedUpdate.
-            Move();
+            // Move();
             Turn();
         }
 

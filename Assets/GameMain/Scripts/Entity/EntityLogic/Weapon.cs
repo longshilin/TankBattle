@@ -7,22 +7,15 @@ namespace TankBattle {
 
     /// <summary>
     /// 武器类。具有射击动作
-    ///     可以实现武器挂载在player身上
-    ///     武器可以实例炮弹对象，并赋予炮弹的发射方向
     /// </summary>
     public class Weapon : Entity {
         public Slider m_AimSlider;                  // 坦克实体的子对象,用来显示蓄力进度条
 
         private const string FireAttachPoint = "Weapon Point";    // 坦克实体的子对象,用来表示炮弹产生的地方
 
-        //public AudioSource m_ShootingAudio;         // Reference to the audio source used to play the shooting audio. NB: different to the movement audio source.
-        //public AudioClip m_ChargingClip;            // Audio that plays when each shot is charging up.
-        //public AudioClip m_FireClip;                // Audio that plays when each shot is fired.
-
         [SerializeField]
         private WeaponData m_WeaponData = null;
 
-        private float m_NextAttackTime = 0f;
         private string m_FireButton;                // The input axis that is used for launching shells.
         private float m_CurrentLaunchForce;         // The force that will be given to the shell when the fire button is released.
         private float m_ChargeSpeed;                // How fast the launch force increases, based on the max charge time.
@@ -30,11 +23,6 @@ namespace TankBattle {
 
         /// 第一部分被调用，Initialization模块
         private void Awake() {
-            //Debug.Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
-            // 加载音频
-            //m_ChargingClip = Resources.Load<AudioClip>("Sounds/shot_charging");
-            //m_FireClip = Resources.Load<AudioClip>("Sounds/shot_firing");
-            //m_ShootingAudio = GetComponentInParent<AudioSource>();
         }
 
         protected override void OnInit(object userData) {
@@ -85,7 +73,7 @@ namespace TankBattle {
         protected override void OnUpdate(float elapseSeconds, float realElapseSeconds) {
             base.OnUpdate(elapseSeconds, realElapseSeconds);
 
-            if (m_FireButton == null) {
+            if (m_FireButton == null || GetComponentInParent<MyTank>() == null) {
                 return;
             }
 
@@ -123,9 +111,6 @@ namespace TankBattle {
             m_CurrentLaunchForce = m_WeaponData.MinLaunchForce;
 
             // 音效播放
-            // Change the clip to the charging clip and start it playing.
-            //m_ShootingAudio.clip = m_ChargingClip;
-            //m_ShootingAudio.Play();
             GameEntry.Sound.PlaySFX(m_WeaponData.BulletChargingSoundId);
 
             //Debug.LogFormat(Constant.Logger.loggerFormat4, GetType(), System.Reflection.MethodBase.GetCurrentMethod().Name, Name, m_CurrentLaunchForce);
@@ -154,9 +139,6 @@ namespace TankBattle {
             });
 
             // 音效播放
-            // Change the clip to the firing clip and play it.
-            //m_ShootingAudio.clip = m_FireClip;
-            //m_ShootingAudio.Play();
             GameEntry.Sound.PlaySFX(m_WeaponData.BulletFiringSoundId);
 
             // Reset the launch force.  This is a precaution in case of missing button events.

@@ -13,7 +13,6 @@ using UnityGameFramework.Runtime;
 namespace TankBattle {
 
     public class HomeForm : UGuiForm {
-        private LoginRes loginRes = null;
         public Text UserName = null;
         public Text GoldNum = null;
         public Text CupNum = null;
@@ -31,11 +30,10 @@ namespace TankBattle {
         protected override void OnOpen(object userData) {
             base.OnOpen(userData);
             m_procedureHome = (ProcedureHome)userData;
-            if (GameEntry.User != null) {
-                loginRes = GameEntry.User;
-                UserName.text = loginRes.Account;
-                GoldNum.text = loginRes.Gold.ToString();
-                CupNum.text = loginRes.Cup.ToString();
+            if (GameEntry.NetData.mUserData != null) {
+                UserName.text = GameEntry.NetData.mUserData.UserName;
+                GoldNum.text = GameEntry.NetData.mUserData.Gold.ToString();
+                CupNum.text = GameEntry.NetData.mUserData.Cup.ToString();
             }
             else {
                 UserName.text = "Error";
@@ -55,9 +53,10 @@ namespace TankBattle {
         protected override void OnUpdate(float elapseSeconds, float realElapseSeconds) {
             base.OnUpdate(elapseSeconds, realElapseSeconds);
             //检测匹配是否成功
-            if (GameEntry.PlayerB != null) {
-                if (GameEntry.PlayerB.UserId == 0) {
-                    GameEntry.PlayerB = null;
+            if (GameEntry.NetData.mFightData != null && GameEntry.NetData.mFightData.RoomId != 0) {
+                if (GameEntry.NetData.mFightData.RoomId == -1) {
+                    GameEntry.NetData.mFightData = null;
+                    //GameEntry.PlayerB = null;
                     SearchCav.SetActive(false);
                     //匹配失败
                     GameEntry.UI.OpenDialog(new DialogParams() {
@@ -76,15 +75,15 @@ namespace TankBattle {
         }
 
         public void SearchUser() {
-            //SearchCav.SetActive(true);
-            //SearchReq searchReq = new SearchReq();
-            //searchReq.UserId = loginRes.UserId;
+            SearchCav.SetActive(true);
+            MatchReq matchReq = new MatchReq();
+            matchReq.UserId = GameEntry.NetData.mUserData.UserId;
             //searchReq.Account = loginRes.Account;
             //searchReq.UserId = loginRes.UserId;
-            //searchReq.Gold = loginRes.Gold;
-            //searchReq.Cup = loginRes.Cup;
-            //NetWorkChannel.send(searchReq);
-            m_procedureHome.StartGame();
+            matchReq.Gold = GameEntry.NetData.mUserData.Gold;
+            matchReq.Cup = GameEntry.NetData.mUserData.Cup;
+            NetWorkChannel.send(matchReq);
+            //m_procedureHome.StartGame();
         }
 
         public void CancelSearch() {
@@ -92,7 +91,7 @@ namespace TankBattle {
 
             SearchCav.SetActive(false);
             CancelSearchReq req = new CancelSearchReq();
-            req.UserId = GameEntry.User.UserId;
+            req.UserId = GameEntry.NetData.mUserData.UserId;
             NetWorkChannel.send(req);
         }
     }

@@ -8,6 +8,12 @@ namespace TankBattle {
     public abstract class TankData : TargetableObjectData {
 
         [SerializeField]
+        private int m_TankId = 0;
+
+        [SerializeField]
+        private string m_Name = null;
+
+        [SerializeField]
         private ThrusterData m_ThrusterData = null;
 
         [SerializeField]
@@ -95,6 +101,9 @@ namespace TankBattle {
             }
         }
 
+        public Color TankColor { get => m_TankColor; }
+        public int TankId { get => m_TankId; set => m_TankId = value; }
+        public string Name { get => m_Name; set => m_Name = value; }
 
         public ThrusterData GetThrusterData() {
             return m_ThrusterData;
@@ -107,6 +116,5 @@ namespace TankBattle {
         public ArmorData GetArmorData() {
             return m_ArmorData;
         }
-
     }
 }

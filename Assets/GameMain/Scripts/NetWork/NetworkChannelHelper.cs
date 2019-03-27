@@ -16,6 +16,8 @@ namespace TankBattle {
 
     public class NetworkChannelHelper : INetworkChannelHelper {
         private readonly Dictionary<int, Type> m_ServerToClientPacketTypes = new Dictionary<int, Type>();
+        private readonly Dictionary<int, Type> m_ClientToServerPacketTypes = new Dictionary<int, Type>();
+        public static readonly Dictionary<int, Type> m_AllPacketTypes = new Dictionary<int, Type>();
 
         //private readonly MemoryStream m_CachedStream = new MemoryStream();
         private INetworkChannel m_NetworkChannel = null;
@@ -38,6 +40,7 @@ namespace TankBattle {
 
             // 反射注册包和包处理函数。
             Type packetBaseType = typeof(SCPacketBase);
+            Type CSpacketBaseType = typeof(CSPacketBase);
             Type packetHandlerBaseType = typeof(PacketHandlerBase);
             Assembly assembly = Assembly.GetExecutingAssembly();
             Type[] types = assembly.GetTypes();
@@ -55,10 +58,24 @@ namespace TankBattle {
                     }
 
                     m_ServerToClientPacketTypes.Add(packetBase.Id, types[i]);
+                    m_AllPacketTypes.Add(packetBase.Id, types[i]);
                 }
                 else if (types[i].BaseType == packetHandlerBaseType) {
                     IPacketHandler packetHandler = (IPacketHandler)Activator.CreateInstance(types[i]);
                     m_NetworkChannel.RegisterHandler(packetHandler);
+                }
+                else if (types[i].BaseType == CSpacketBaseType)
+                {
+                    PacketBase packetBase = (PacketBase)Activator.CreateInstance(types[i]);
+                    Type packetType = GetClientToServerPacketType(packetBase.Id);
+                    if (packetType != null)
+                    {
+                        Log.Warning("Already exist packet type '{0}', check '{1}' or '{2}'?.", packetBase.Id.ToString(), packetType.Name, packetBase.GetType().Name);
+                        continue;
+                    }
+
+                    m_ClientToServerPacketTypes.Add(packetBase.Id, types[i]);
+                    m_AllPacketTypes.Add(packetBase.Id, types[i]);
                 }
             }
 
@@ -207,9 +224,31 @@ namespace TankBattle {
             return packet;
         }
 
-        private Type GetServerToClientPacketType(int id) {
+        public static Type GetAllPacketType(int id)
+        {
+            Type type = null;
+            if (m_AllPacketTypes.TryGetValue(id, out type))
+            {
+                return type;
+            }
+
+            return null;
+        }
+
+        private  Type GetServerToClientPacketType(int id) {
             Type type = null;
             if (m_ServerToClientPacketTypes.TryGetValue(id, out type)) {
+                return type;
+            }
+
+            return null;
+        }
+
+        private Type GetClientToServerPacketType(int id)
+        {
+            Type type = null;
+            if (m_ClientToServerPacketTypes.TryGetValue(id, out type))
+            {
                 return type;
             }
 

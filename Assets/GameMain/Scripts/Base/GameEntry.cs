@@ -7,15 +7,14 @@
 
 using UnityEngine;
 
-namespace TankBattle
-{
+namespace TankBattle {
+
     /// <summary>
     /// 游戏入口。
     /// </summary>
-    public partial class GameEntry : MonoBehaviour
-    {
-        private void Start()
-        {
+    public partial class GameEntry : MonoBehaviour {
+
+        private void Start() {
             InitBuiltinComponents();
             InitCustomComponents();
         }

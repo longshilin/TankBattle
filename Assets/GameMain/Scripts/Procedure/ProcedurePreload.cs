@@ -23,7 +23,7 @@ namespace TankBattle {
             "Armor",
             "Sound",
             "UIForm",
-              };
+        };
 
         private Dictionary<string, bool> m_LoadedFlag = new Dictionary<string, bool>();
 

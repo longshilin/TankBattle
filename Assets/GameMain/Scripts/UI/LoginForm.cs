@@ -71,8 +71,8 @@ namespace TankBattle {
             Account.text = "用户名：";
             Pass.text = "密  码：";
             LoginBtnText.text = "登陆";
-            Host.text = "127.0.0.1";
-            Port.text = "8800";
+            Host.text = "192.168.90.93";
+            Port.text = "50000";
 
             m_ProcedureLogin = (ProcedureLogin)userData;
             if (m_ProcedureLogin == null) {

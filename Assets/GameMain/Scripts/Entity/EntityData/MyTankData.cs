@@ -1,11 +1,14 @@
 ﻿using System;
 using UnityEngine;
 
-namespace TankBattle
-{
+namespace TankBattle {
+
     [Serializable]
-    public class MyTankData : TankData
-    {
+    public class MyTankData : TankData {
+
+        [SerializeField]
+        private string m_TankId = null;
+
         [SerializeField]
         private string m_Name = null;
 
@@ -13,26 +16,22 @@ namespace TankBattle
         private int m_Wins = 0;
 
         public MyTankData(int entityId, int typeId)
-            : base(entityId, typeId, CampType.Player)
-        {
-
+            : base(entityId, typeId, CampType.Player) {
         }
 
         /// <summary>
         /// 角色名称。
         /// </summary>
-        public string Name
-        {
-            get
-            {
+        public string Name {
+            get {
                 return m_Name;
             }
-            set
-            {
+            set {
                 m_Name = value;
             }
         }
 
         public int Wins { get => m_Wins; set => m_Wins = value; }
+        public string TankId { get => m_TankId; set => m_TankId = value; }
     }
 }

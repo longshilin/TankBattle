@@ -41,6 +41,10 @@ namespace TankBattle {
             entityComponent.ShowEntity(typeof(MyTank), "Tank", Constant.AssetPriority.MyTankAsset, data);
         }
 
+        public static void ShowEnemyTank(this EntityComponent entityComponent, MyTankData data) {
+            entityComponent.ShowEntity(typeof(EnemyTank), "Tank", Constant.AssetPriority.MyTankAsset, data);
+        }
+
         public static void ShowTank(this EntityComponent entityComponent, TankData data) {
             entityComponent.ShowEntity(typeof(Tank), "Tank", Constant.AssetPriority.AircraftAsset, data);
         }
@@ -79,7 +83,7 @@ namespace TankBattle {
             }
 
             entityComponent.ShowEntity(data.Id, logicType, AssetUtility.GetEntityAsset(drEntity.AssetName), entityGroup, priority, data);
-            //Debug.LogFormat(Constant.Logger.loggerFormat2, System.Reflection.MethodBase.GetCurrentMethod().Name, " --- ShowEntity Group：" + entityGroup + " Id : " + data.TypeId.ToString());
+            Debug.LogFormat(Constant.Logger.loggerFormat2, System.Reflection.MethodBase.GetCurrentMethod().Name, " --- ShowEntity Group：" + entityGroup + " Id : " + data.TypeId.ToString());
         }
     }
 }

@@ -1,11 +1,4 @@
-﻿//------------------------------------------------------------
-// Game Framework
-// Copyright © 2013-2019 Jiang Yin. All rights reserved.
-// Homepage: http://gameframework.cn/
-// Feedback: mailto:jiangyin@gameframework.cn
-//------------------------------------------------------------
-
-using GameFramework.DataTable;
+﻿using GameFramework.DataTable;
 using GameFramework.Event;
 using UnityEngine;
 using UnityGameFramework.Runtime;
@@ -15,7 +8,6 @@ namespace TankBattle {
 
     public class ProcedureChangeScene : ProcedureBase {
         private int sceneId = 1;
-        private bool m_ChangeToMenu = false;
         private bool m_IsChangeSceneComplete = false;
         private int m_BackgroundMusicId = 0;
 

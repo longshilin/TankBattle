@@ -12,6 +12,12 @@ namespace TankBattle {
     public class Tank : TargetableObject {
 
         [SerializeField]
+        private string m_TankId = null; // TankId 对应着 UserId
+
+        [SerializeField]
+        private float m_Angle = 0;  // 操纵杆的角度值
+
+        [SerializeField]
         private TankData m_TankData = null;
 
         [SerializeField]
@@ -23,9 +29,10 @@ namespace TankBattle {
         [SerializeField]
         protected Armor m_Armor = new Armor();
 
-        /// <summary>
-        /// 实体展示模块：负责加载Tank身上的各种附属实体。
-        /// </summary>
+        public string TankId { get => m_TankId; set => m_TankId = value; }
+        public float Angle { get => m_Angle; set => m_Angle = value; }
+
+        // 实体展示模块：负责加载Tank身上的各种附属实体。
         protected override void OnShow(object userData) {
             base.OnShow(userData);
 
@@ -45,6 +52,21 @@ namespace TankBattle {
 
             // 坦克初始血条展示
             GameEntry.HPBar.ShowHPBar(this, 1, 1);
+
+            // 设置坦克外表颜色
+            // Get all of the renderers of the tank.
+            MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>();
+
+            // Go through all the renderers...
+            for (int i = 0; i < renderers.Length; i++) {
+                // ... set their material color to the color specific to this tank.
+                renderers[i].material.color = m_TankData.TankColor;
+            }
+            // 设置相机跟踪玩家自己
+            if (m_TankId == GameEntry.NetData.mUserData.UserId) {
+                CameraControlPro m_CameraControl = GameObject.Find("Main Camera").AddComponent<CameraControlPro>();
+                m_CameraControl.m_Target = this.transform;
+            }
         }
 
         protected override void OnHide(object userData) {
@@ -57,8 +79,9 @@ namespace TankBattle {
 
             if (childEntity is Thruster) {
                 m_Thruster = (Thruster)childEntity;
-                m_Thruster.m_Rigidbody = GetComponent<Rigidbody>();
-                m_Thruster.m_MovementAudio = GetComponent<AudioSource>();
+                m_Thruster.m_Angle = m_Angle;
+                //m_Thruster.m_Rigidbody = GetComponent<Rigidbody>();
+                //m_Thruster.m_MovementAudio = GetComponent<AudioSource>();
                 return;
             }
 

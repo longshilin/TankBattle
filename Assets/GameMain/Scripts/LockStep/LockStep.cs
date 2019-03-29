@@ -10,7 +10,7 @@ namespace TankBattle {
     public class LockStep : MonoBehaviour {
         private float mLogicTempTime = 0;
 
-        private GameMessageHandler gameMessageHandler = new GameMessageHandler();
+        //private GameMessageHandler gameMessageHandler = new GameMessageHandler();
 
         private void Update() {
             mLogicTempTime += Time.deltaTime;
@@ -32,10 +32,10 @@ namespace TankBattle {
 
         private void GameTurn() {
             if (GameFrameInTurn == 0) {
-                List<PacketBase> list = null;
-                if (LockManager.Instance.LockFrameTurn(ref list)) {
+                List<Packet> list = null;
+                if (GameEntry.LockManager.LockFrameTurn(ref list)) {
                     if (list != null)
-                        gameMessageHandler.MsgHandle(list);
+                        GameEntry.GameMessageHandler.MsgHandle(list);
                     GameFrameInTurn++;
                 }
             }

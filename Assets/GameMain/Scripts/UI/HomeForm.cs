@@ -55,7 +55,7 @@ namespace TankBattle {
             //检测匹配是否成功
             if (GameEntry.NetData.mFightData != null && GameEntry.NetData.mFightData.RoomId != 0) {
                 if (GameEntry.NetData.mFightData.RoomId == -1) {
-                    GameEntry.NetData.mFightData = null;
+                    GameEntry.NetData.mFightData.RoomId = 0;
                     //GameEntry.PlayerB = null;
                     SearchCav.SetActive(false);
                     //匹配失败
@@ -69,6 +69,7 @@ namespace TankBattle {
                     });
                 }
                 else {
+                    SearchCav.SetActive(false);
                     m_procedureHome.StartGame();
                 }
             }
@@ -82,6 +83,7 @@ namespace TankBattle {
             //searchReq.UserId = loginRes.UserId;
             matchReq.Gold = GameEntry.NetData.mUserData.Gold;
             matchReq.Cup = GameEntry.NetData.mUserData.Cup;
+            matchReq.UserName = GameEntry.NetData.mUserData.UserName;
             NetWorkChannel.send(matchReq);
             //m_procedureHome.StartGame();
         }

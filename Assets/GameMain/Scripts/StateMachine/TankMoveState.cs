@@ -32,7 +32,7 @@ namespace TankBattle {
         protected override void OnUpdate(IFsm<Thruster> fsm, float elapseSeconds, float realElapseSeconds) {
             /* 移动操作杆 前进或后退进行移动*/
             if (fsm.Owner.m_ThrusterEnable) {
-                movementInputValue = ETCInput.GetAxis("Vertical");
+                //movementInputValue = ETCInput.GetAxis("Vertical");
                 if (movementInputValue != 0) {
                     /* 移动 */
                     //fsm.Owner.Move(movementInputValue);

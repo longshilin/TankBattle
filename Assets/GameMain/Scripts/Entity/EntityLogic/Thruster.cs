@@ -24,10 +24,12 @@ namespace TankBattle {
         private float m_TurnInputValue;             // The current value of the turn input.
         private float m_OriginalPitch;              // The pitch of the audio source at the start of the scene.
 
-        public float m_Angle {
-            get;
-            set;
-        }
+        //private int m_Angle;
+        private float m_X;
+
+        private float m_Y;
+
+        private bool isMyTank = false;
 
         private GameFramework.Fsm.IFsm<Thruster> m_TankFsm;
         private FsmComponent Fsm = null;
@@ -36,6 +38,22 @@ namespace TankBattle {
         private StartMoveReq startMoveReq;
         private ChangeDirReq changeDirReq;
         private EndMoveReq endMoveReq;
+
+        private float m_PositionX = 0;
+        private float m_PositionZ = 0;
+        private float m_RotationY = 0;
+
+        private TransformReq transformReq;
+
+        public float PositionX { get => m_PositionX; set => m_PositionX = value; }
+        public float PositionZ { get => m_PositionZ; set => m_PositionZ = value; }
+        public float RotationY { get => m_RotationY; set => m_RotationY = value; }
+
+        //public int Angle { get => m_Angle; set => m_Angle = value; }
+        public float X { get => m_X; set => m_X = value; }
+
+        public float Y { get => m_Y; set => m_Y = value; }
+        public bool IsMyTank { get => isMyTank; set => isMyTank = value; }
 
         /// 第一部分被调用，Initialization模块
         private void Awake() {
@@ -46,6 +64,8 @@ namespace TankBattle {
             startMoveReq = new StartMoveReq();
             changeDirReq = new ChangeDirReq();
             endMoveReq = new EndMoveReq();
+
+            transformReq = new TransformReq();
         }
 
         // 在tank移动上加入状态机
@@ -57,16 +77,16 @@ namespace TankBattle {
 
             //Fsm = UnityGameFramework.Runtime.GameEntry.GetComponent<FsmComponent>();
 
-            /* Tank的所有状态 */
+            ///* Tank的所有状态 */
             //FsmState<Thruster>[] tankStates = new FsmState<Thruster>[] {
             //    new TankIdleState(),
             //    new TankMoveState(),
             //};
 
-            // 创建状态机
+            //// 创建状态机
             //m_TankFsm = Fsm.CreateFsm<Thruster>(this, tankStates);
 
-            // 启动tank静止状态
+            //// 启动tank静止状态
             //m_TankFsm.Start<TankIdleState>();
         }
 
@@ -87,60 +107,73 @@ namespace TankBattle {
             // 获取Thruster需要操作的Tank Rigibody
             m_Rigidbody = gameObject.GetComponentInParent<Rigidbody>();
 
-            // 加入操作杆的监听事件
-            joy = GameObject.FindObjectOfType<ETCJoystick>();
-            if (joy != null) {
-                joy.onMoveStart.AddListener(StartMoveCallBack);
-                joy.onMove.AddListener(MoveCallBack);
-                joy.onMoveEnd.AddListener(EndMoveCallBack);
+            if (isMyTank) {
+                // 加入操作杆的监听事件
+                joy = GameObject.FindObjectOfType<ETCJoystick>();
+                if (joy != null) {
+                    joy.onMoveStart.AddListener(StartMoveCallBack);
+                    joy.onMove.AddListener(MoveCallBack);
+                    joy.onMoveEnd.AddListener(EndMoveCallBack);
+                }
             }
         }
 
-        /// <summary>
-        /// (1) 遥杆开始移动时进行的回调函数
-        /// </summary>
         private void StartMoveCallBack() {
-            // 不做任何动作
             m_MovementInputValue = 0;
             m_TurnInputValue = 0;
+            // 不做任何动作
+            if (!GameEntry.NetData.mFightData.GameInitSuccess) {
+                Debug.Log("需等待其他玩家准备就绪...");
+                return;
+            }
+
+            startMoveReq.UserId = GameEntry.NetData.mUserData.UserId;
+            startMoveReq.RoomId = GameEntry.NetData.mFightData.RoomId;
+            //Debug.Log("发送StartMove帧命令!!!!!!!!!!!!");
+            NetWorkChannel.send(startMoveReq);  // 发送帧命令
         }
 
-        /// <summary>
-        /// (2) 遥杆一直处于推进状态时的回调函数
-        /// </summary>
         private void MoveCallBack(Vector2 tVec2) {
-            //发送遥杆角度
-            if (GetComponentInParent<MyTank>() != null) {
-                m_MovementInputValue = tVec2.y;
-                m_TurnInputValue = tVec2.x;
+            if (!GameEntry.NetData.mFightData.GameInitSuccess) {
+                Debug.Log("需等待其他玩家准备就绪...");
+                return;
             }
 
             changeDirReq.UserId = GameEntry.NetData.mUserData.UserId;
             changeDirReq.RoomId = GameEntry.NetData.mFightData.RoomId;
 
             //发送遥杆角度
-            if (tVec2.x != 0) {
-                int angle = (int)(Mathf.Atan2(tVec2.y, tVec2.x) * 180 / Mathf.PI);
-                changeDirReq.Angle = angle;
+            //if (tVec2.x != 0) {
+            changeDirReq.DirX = tVec2.x;
+            changeDirReq.DirY = tVec2.y;
 
-                Debug.Log("发送遥杆角度 : " + angle);
-            }
-            else {
-                int angle = tVec2.y > 0 ? 90 : -90;
-                changeDirReq.Angle = angle;
-                //SendManager.SendChangeDir(angle);
-            }
+            //int angle = (int)(Mathf.Atan2(tVec2.y, tVec2.x) * 180 / Mathf.PI);
+            //changeDirReq.Angle = angle;
 
+            //Debug.Log("发送帧命令 - 遥杆角度 : " + angle + "°");
+            //}
+            //else {
+            //    int angle = tVec2.y > 0 ? 90 : -90;
+            //    changeDirReq.Angle = angle;
+            //}
+            //Debug.Log("发送帧命令!!!!!!!!!!!!");
             NetWorkChannel.send(changeDirReq);  // 发送帧命令
                                                 //Debug.Log(tVec2.x + "  --  " + tVec2.y);
         }
 
-        /// <summary>
-        /// （3）遥杆被松开复原到原位时的回调函数
-        /// </summary>
         private void EndMoveCallBack() {
             m_MovementInputValue = 0;
             m_TurnInputValue = 0;
+
+            // 不做任何动作
+            if (!GameEntry.NetData.mFightData.GameInitSuccess) {
+                Debug.Log("需等待其他玩家准备就绪...");
+                return;
+            }
+            endMoveReq.UserId = GameEntry.NetData.mUserData.UserId;
+            endMoveReq.RoomId = GameEntry.NetData.mFightData.RoomId;
+            //Debug.Log("发送EenMove帧命令!!!!!!!!!!!!");
+            NetWorkChannel.send(endMoveReq);  // 发送帧命令
         }
 
         /// 将引擎实体附加到坦克父实体上
@@ -180,20 +213,38 @@ namespace TankBattle {
         /// 第四步被调用，Physics模块
         private void FixedUpdate() {
             // Adjust the rigidbodies position and orientation in FixedUpdate.
-            // Move();
+            Move();
             Turn();
         }
 
         /// 第五步被调用，GameLogic模块
         private void Update() {
-            //m_MovementInputValue = ETCInput.GetAxis(m_MovementAxisName);
-            //m_TurnInputValue = ETCInput.GetAxis(m_TurnAxisName);
+            // 不做任何动作
+            if (!GameEntry.NetData.mFightData.GameInitSuccess) {
+                Debug.Log("需等待其他玩家准备就绪...");
+                return;
+            }
+            // 如果Tank是本客户端，发送该tank坐标
+            //if (isMyTank) {
+            //    transformReq.UserId = GameEntry.NetData.mUserData.UserId;
+            //    transformReq.RoomId = GameEntry.NetData.mFightData.RoomId;
+            //    // 发送tank坐标和朝向
+            //    transformReq.PositionX = GetComponentInParent<MyTank>().transform.position.x;
+            //    transformReq.PositionZ = GetComponentInParent<MyTank>().transform.position.z;
+            //    transformReq.RotationY = GetComponentInParent<MyTank>().transform.rotation.y;
 
+            //    NetWorkChannel.send(transformReq);
+            //    Debug.Log("发送客户端本地玩家的位置给服务器！！！！！");
+            //}
+
+            m_MovementInputValue = m_Y;
+            m_TurnInputValue = m_X;
+            //Debug.Log("Tank m_Angle: " + m_Angle + " Mathf.Cos(m_Angle)" + Mathf.Cos(m_Angle) + " Mathf.Sin(m_Angle): " + Mathf.Sin(m_Angle));
             // 将angle角度转为x值和y值
-            //m_MovementInputValue = Mathf.Cos(m_Angle);
-            //m_TurnInputValue = Mathf.Sin(m_Angle);
-            Debug.Log("记录遥杆x : " + m_MovementInputValue);
-            Debug.Log("记录遥杆y : " + m_TurnInputValue);
+            //m_MovementInputValue = Mathf.Sin(m_Angle);
+            //m_TurnInputValue = Mathf.Cos(m_Angle);
+            //Debug.Log("记录遥杆x : " + m_MovementInputValue);
+            //Debug.Log("记录遥杆y : " + m_TurnInputValue);
             EngineAudio();
         }
 

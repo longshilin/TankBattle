@@ -23,6 +23,11 @@ namespace TankBattle {
                 return;
             }
 
+            string m_TankId = m_MyTankData.TankId;
+            Debug.Log("Add Tank Id" + m_TankId);
+            GameEntry.LockManager.AddActor(m_TankId, this);
+            Debug.Log("!~!!!!!!! AddActor - " + m_TankId + " + " + this.Name);
+
             // 设置相机跟踪玩家自己
             m_CameraControl = GameObject.Find("Main Camera").AddComponent<CameraControlPro>();
             m_CameraControl.m_Target = this.transform;

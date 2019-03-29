@@ -8,7 +8,7 @@ namespace TankBattle {
     public abstract class TankData : TargetableObjectData {
 
         [SerializeField]
-        private int m_TankId = 0;
+        private string m_TankId = null;
 
         [SerializeField]
         private string m_Name = null;
@@ -34,7 +34,7 @@ namespace TankBattle {
         [SerializeField]
         private Color m_TankColor = Color.blue;
 
-        public TankData(int entityId, int typeId, CampType camp)
+        public TankData(int entityId, int typeId, CampType camp, string tankId)
             : base(entityId, typeId, camp) {
             IDataTable<DRTank> dtTank = GameEntry.DataTable.GetDataTable<DRTank>();
             DRTank drTank = dtTank.GetDataRow(TypeId);
@@ -54,6 +54,8 @@ namespace TankBattle {
 
             HP = m_ArmorData.MaxHP;
             m_Defense = m_ArmorData.Defense;
+
+            m_TankId = tankId;
         }
 
         /// <summary>
@@ -102,7 +104,8 @@ namespace TankBattle {
         }
 
         public Color TankColor { get => m_TankColor; }
-        public int TankId { get => m_TankId; set => m_TankId = value; }
+
+        public string TankId { get => m_TankId; set => m_TankId = value; }
         public string Name { get => m_Name; set => m_Name = value; }
 
         public ThrusterData GetThrusterData() {

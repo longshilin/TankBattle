@@ -41,7 +41,7 @@ namespace TankBattle {
             entityComponent.ShowEntity(typeof(MyTank), "Tank", Constant.AssetPriority.MyTankAsset, data);
         }
 
-        public static void ShowEnemyTank(this EntityComponent entityComponent, MyTankData data) {
+        public static void ShowEnemyTank(this EntityComponent entityComponent, EnemyTankData data) {
             entityComponent.ShowEntity(typeof(EnemyTank), "Tank", Constant.AssetPriority.MyTankAsset, data);
         }
 

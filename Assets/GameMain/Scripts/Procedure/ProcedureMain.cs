@@ -11,6 +11,7 @@ namespace TankBattle {
         private readonly Dictionary<GameMode, GameBase> m_Games = new Dictionary<GameMode, GameBase>();
         private GameBase m_CurrentGame = null;
         private bool m_GotoMenu = false;
+        private bool m_GameInit = false;
         private float m_GotoMenuDelaySeconds = 0f;
 
         private CameraControlPro m_CameraControl;
@@ -58,6 +59,19 @@ namespace TankBattle {
         // Every frame will be executed
         protected override void OnUpdate(ProcedureOwner procedureOwner, float elapseSeconds, float realElapseSeconds) {
             base.OnUpdate(procedureOwner, elapseSeconds, realElapseSeconds);
+
+            if (!m_GameInit && GameEntry.LockManager.mActorDic.Count == 2) {
+                GameInitReq gameInitReq = new GameInitReq();
+                gameInitReq.Success = true;
+
+                Debug.Log("客户端 发送消息给服务器，玩家都实例化成功");
+                //客户端 发送消息给服务器，玩家都实例化成功
+                NetWorkChannel.send(gameInitReq);
+                m_GameInit = true;
+            }
+            else {
+                return;
+            }
 
             // Monitor if the game is over
             if (m_CurrentGame != null && !m_CurrentGame.GameOver) {

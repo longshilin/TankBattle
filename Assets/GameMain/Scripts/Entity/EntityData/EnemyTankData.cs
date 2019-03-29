@@ -4,7 +4,7 @@ using UnityEngine;
 namespace TankBattle {
 
     [Serializable]
-    public class MyTankData : TankData {
+    public class EnemyTankData : TankData {
 
         [SerializeField]
         private string m_TankId = null;
@@ -15,10 +15,9 @@ namespace TankBattle {
         [SerializeField]
         private int m_Wins = 0;
 
-        public MyTankData(int entityId, int typeId, string tankId)
+        public EnemyTankData(int entityId, int typeId, string tankId)
             : base(entityId, typeId, CampType.Player, tankId) {
             m_TankId = base.TankId;
-            Debug.Log("base.TankId" + base.TankId);
         }
 
         /// <summary>

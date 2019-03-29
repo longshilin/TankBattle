@@ -118,6 +118,54 @@ namespace TankBattle {
         }
     }
 
+    public partial class GameInitReq : CSPacketBase {
+
+        public override int Id {
+            get {
+                return 1014;
+            }
+        }
+
+        public override void Clear() {
+        }
+    }
+
+    public partial class GameInitRes : SCPacketBase {
+
+        public override int Id {
+            get {
+                return 1015;
+            }
+        }
+
+        public override void Clear() {
+        }
+    }
+
+    public partial class TransformReq : CSPacketBase {
+
+        public override int Id {
+            get {
+                return 1016;
+            }
+        }
+
+        public override void Clear() {
+        }
+    }
+
+    public partial class TransformRes : SCPacketBase {
+
+        public override int Id {
+            get {
+                return 1017;
+            }
+        }
+
+        public override void Clear() {
+        }
+    }
+
     public partial class GameMessage : SCPacketBase {
 
         public override int Id {

@@ -27,6 +27,7 @@ namespace TankBattle {
     }
 
     public class FightData {
+        public bool GameInitSuccess { get; set; }
         public int RoomId { get; set; }
         public List<PlayerInfo> PlayerInfoList { get; set; }
     }

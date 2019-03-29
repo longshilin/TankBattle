@@ -12,7 +12,7 @@ namespace TankBattle {
             Send(mStartMoveReq);
         }
 
-        public static void SendChangeDir(float tAngle) {
+        public static void SendChangeDir(int tAngle) {
             ChangeDirReq mChangeDirReq = new ChangeDirReq();
 
             mChangeDirReq.UserId = "" + GameEntry.NetData.mUserData.UserId;

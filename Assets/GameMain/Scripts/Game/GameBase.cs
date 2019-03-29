@@ -15,9 +15,9 @@ namespace TankBattle {
     public abstract class GameBase {
         private const string SpawnPoint1 = "SpawnPoint1";
         private const string SpawnPoint2 = "SpawnPoint2";
-        private Dictionary<int, Tank> mActorDic = new Dictionary<int, Tank>();
+        //public Dictionary<string, Tank> mActorDic = new Dictionary<string, Tank>();
 
-        public static GameBase Instance;
+        //public static GameBase Instance;
 
         private FrameData mFrameData;
         private LockStep mLockStep;
@@ -31,17 +31,13 @@ namespace TankBattle {
             protected set;
         }
 
-        private void Awake() {
-            Instance = this;
-        }
+        //private void Awake() {
+        //    Instance = this;
+        //}
 
         private Tank m_Tank = null;
 
         public virtual void Initialize() {
-            //mFrameData = new FrameData();
-            //mLockStep = gameObject.AddComponent<LockStep>();
-            Debug.Log("!!!!!!!!!!!!" + GameObject.FindObjectOfType<LockStep>());
-
             GameEntry.Event.Subscribe(ShowEntitySuccessEventArgs.EventId, OnShowEntitySuccess);
             GameEntry.Event.Subscribe(ShowEntityFailureEventArgs.EventId, OnShowEntityFailure);
 
@@ -51,20 +47,21 @@ namespace TankBattle {
                 string userid = info.UserId;
                 string username = info.UserName;
 
+                Debug.Log("UserId : " + userid + " UserName ：" + username);
+                Debug.Log("GameEntry.NetData.mUserData.UserId : " + GameEntry.NetData.mUserData.UserId + " GameEntry.NetData.mUserData.UserName ：" + GameEntry.NetData.mUserData.UserName);
+
                 if (userid.Equals(GameEntry.NetData.mUserData.UserId)) {
-                    GameEntry.Entity.ShowMyTank(new MyTankData(GameEntry.Entity.GenerateSerialId(), 10000 + i) {
+                    GameEntry.Entity.ShowMyTank(new MyTankData(GameEntry.Entity.GenerateSerialId(), 10000 + i, userid) {
                         Name = username,
                         Position = GameObject.Find("SpawnPoint" + i).transform.position,
                         Rotation = GameObject.Find("SpawnPoint" + i).transform.rotation,
-                        TankId = userid,
                     });
                 }
                 else {
-                    GameEntry.Entity.ShowEnemyTank(new MyTankData(GameEntry.Entity.GenerateSerialId(), 10000 + i) {
+                    GameEntry.Entity.ShowEnemyTank(new EnemyTankData(GameEntry.Entity.GenerateSerialId(), 10000 + i, userid) {
                         Name = username,
                         Position = GameObject.Find("SpawnPoint" + i).transform.position,
                         Rotation = GameObject.Find("SpawnPoint" + i).transform.rotation,
-                        TankId = userid,
                     });
                 }
             }
@@ -100,32 +97,17 @@ namespace TankBattle {
             if (ne.EntityLogicType == typeof(EnemyTank)) {
                 m_Tank = (EnemyTank)ne.Entity.Logic;
             }
-
-            if (GetActor(m_Tank.Id) != m_Tank) {
-                AddActor(m_Tank.Id, m_Tank);
-                Debug.Log("AddActor - " + m_Tank.Id + " + " + m_Tank.Name);
-            }
+            //string m_TankId = m_Tank.GetComponent<TankData>().TankId;
+            //if (GetActor(m_TankId) != m_Tank) {
+            //    AddActor(m_TankId, m_Tank);
+            //    Debug.Log("!~!!!!!!! AddActor - " + m_TankId + " + " + m_Tank.Name);
+            //}
         }
 
         // when show entity failure, print the error message
         protected virtual void OnShowEntityFailure(object sender, GameEventArgs e) {
             ShowEntityFailureEventArgs ne = (ShowEntityFailureEventArgs)e;
             Log.Warning("Show entity failure with error message '{0}'.", ne.ErrorMessage);
-        }
-
-        public void AddActor(int tUserid, Tank tTank) {
-            mActorDic[tUserid] = tTank;
-        }
-
-        public void RemoveActor(int tUserid) {
-            //Destroy(mActorDic[tUserid].gameObject);
-            mActorDic.Remove(tUserid);
-        }
-
-        public Tank GetActor(int tUserid) {
-            Tank tank = null;
-            mActorDic.TryGetValue(tUserid, out tank);
-            return tank;
         }
     }
 }

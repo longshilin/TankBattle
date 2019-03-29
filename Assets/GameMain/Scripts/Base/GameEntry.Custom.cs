@@ -33,24 +33,34 @@ namespace TankBattle {
             private set;
         }
 
+        public static LockManager LockManager {
+            get;
+            private set;
+        }
+
+        public static GameMessageHandler GameMessageHandler {
+            get;
+            private set;
+        }
+
         #endregion 用户数据
 
         private static void InitCustomComponents() {
             BuiltinData = UnityGameFramework.Runtime.GameEntry.GetComponent<BuiltinDataComponent>();
             HPBar = UnityGameFramework.Runtime.GameEntry.GetComponent<HPBarComponent>();
-        }
+            NetData = new NetData();
+            LockManager = new LockManager();
+            GameMessageHandler = new GameMessageHandler();
+            //// 打印用户数据
+            //Debug.Log("UserData : ");
+            //Debug.Log("UserId: " + NetData.mUserData.UserId + "UserName: " + NetData.mUserData.UserName);
 
-        // 打印用户数据
-        private void print() {
-            Debug.Log("UserData : ");
-            Debug.Log("UserId: " + NetData.mUserData.UserId + "UserName: " + NetData.mUserData.UserName);
-
-            Debug.Log("FightData : ");
-            Debug.Log("RoomId: " + NetData.mFightData.RoomId);
-            List<PlayerInfo> list = NetData.mFightData.PlayerInfoList;
-            for (int i = 0; i < list.Count; i++) {
-                Debug.Log("UserId: " + list[i].UserId + "UserName: " + list[i].UserName + "Cold: " + list[i].Gold + "Cup: " + list[i].Cup);
-            }
+            //Debug.Log("FightData : ");
+            //Debug.Log("RoomId: " + NetData.mFightData.RoomId);
+            //List<PlayerInfo> list = NetData.mFightData.PlayerInfoList;
+            //for (int i = 0; i < list.Count; i++) {
+            //    Debug.Log("UserId: " + list[i].UserId + "UserName: " + list[i].UserName + "Cold: " + list[i].Gold + "Cup: " + list[i].Cup);
+            //}
         }
     }
 }

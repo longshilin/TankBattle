@@ -12,12 +12,6 @@ namespace TankBattle {
     public class Tank : TargetableObject {
 
         [SerializeField]
-        private string m_TankId = null; // TankId 对应着 UserId
-
-        [SerializeField]
-        private float m_Angle = 0;  // 操纵杆的角度值
-
-        [SerializeField]
         private TankData m_TankData = null;
 
         [SerializeField]
@@ -29,8 +23,29 @@ namespace TankBattle {
         [SerializeField]
         protected Armor m_Armor = new Armor();
 
-        public string TankId { get => m_TankId; set => m_TankId = value; }
-        public float Angle { get => m_Angle; set => m_Angle = value; }
+        public bool updateTransform {
+            get;
+            set;
+        }
+
+        private float m_PositionX = 0;
+        private float m_PositionZ = 0;
+        private float m_RotationY = 0;
+
+        private TransformReq transformReq;
+
+        public float PositionX { get => m_PositionX; set => m_PositionX = value; }
+        public float PositionZ { get => m_PositionZ; set => m_PositionZ = value; }
+        public float RotationY { get => m_RotationY; set => m_RotationY = value; }
+
+        private void Awake() {
+            transformReq = new TransformReq();
+            updateTransform = false;
+        }
+
+        protected override void OnInit(object userData) {
+            base.OnInit(userData);
+        }
 
         // 实体展示模块：负责加载Tank身上的各种附属实体。
         protected override void OnShow(object userData) {
@@ -54,19 +69,29 @@ namespace TankBattle {
             GameEntry.HPBar.ShowHPBar(this, 1, 1);
 
             // 设置坦克外表颜色
-            // Get all of the renderers of the tank.
             MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>();
-
-            // Go through all the renderers...
             for (int i = 0; i < renderers.Length; i++) {
-                // ... set their material color to the color specific to this tank.
                 renderers[i].material.color = m_TankData.TankColor;
             }
-            // 设置相机跟踪玩家自己
-            if (m_TankId == GameEntry.NetData.mUserData.UserId) {
-                CameraControlPro m_CameraControl = GameObject.Find("Main Camera").AddComponent<CameraControlPro>();
-                m_CameraControl.m_Target = this.transform;
-            }
+        }
+
+        protected override void OnUpdate(float elapseSeconds, float realElapseSeconds) {
+            base.OnUpdate(elapseSeconds, realElapseSeconds);
+
+            // 打印玩家Tank的坐标
+            //Debug.LogFormat("({0},{1},{2})", transform.position.x, transform.position.y, transform.position.z);
+
+            //if (transform.position.Equals(m_TankData.Position) && transform.rotation.Equals(m_TankData.Rotation)) {
+            //    return;
+            //}
+
+            //if (!updateTransform) {
+            //    return;
+            //}
+            //transform.position = new Vector3(m_PositionX, 0f, m_PositionZ);
+            //transform.rotation = Quaternion.Euler(0f, m_RotationY, 0f);
+            //Debug.LogFormat("position ({0},{1},{2})", m_PositionX, 0, m_PositionZ);
+            //Debug.LogFormat("rotation ({0},{1},{2})", 0, m_RotationY, 0);
         }
 
         protected override void OnHide(object userData) {
@@ -79,9 +104,9 @@ namespace TankBattle {
 
             if (childEntity is Thruster) {
                 m_Thruster = (Thruster)childEntity;
-                m_Thruster.m_Angle = m_Angle;
-                //m_Thruster.m_Rigidbody = GetComponent<Rigidbody>();
-                //m_Thruster.m_MovementAudio = GetComponent<AudioSource>();
+                if (m_TankData.TankId.Equals(GameEntry.NetData.mUserData.UserId)) {
+                    m_Thruster.IsMyTank = true;
+                }
                 return;
             }
 
